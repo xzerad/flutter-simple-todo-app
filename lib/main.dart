@@ -57,6 +57,7 @@ class _TodoApp extends State<StatefulWidget>{
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           Container(
           margin: const EdgeInsets.all(10),
           child:
@@ -86,9 +87,13 @@ class _TodoApp extends State<StatefulWidget>{
                       onTap: ()=> setState(() {
                         strings[index]["done"] = !strings[index]["done"];
                       }) ,
-                      onLongPress: () => setState(() {
-                        strings.remove(strings[index]);
-                      }),
+                      leading: Checkbox(onChanged: (bool? value) { setState(() {
+                        strings[index]["done"] = ! strings[index]["done"];
+                      }); }, value: strings[index]["done"], checkColor: Colors.green, activeColor: Colors.white,),
+                      trailing: IconButton(onPressed: () => setState(() {
+                          strings.remove(strings[index]);
+                        })
+                        , icon: const Icon(Icons.cancel), color: Colors.red[500],),
                       title: Text( strings[index]["text"], style:  TextStyle(decoration: strings[index]["done"]?TextDecoration.lineThrough: null),),
                     );
                   }),
