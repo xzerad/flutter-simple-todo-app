@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 void main() => runApp( const MyApp());
 
@@ -35,7 +37,7 @@ class _TodoApp extends State<StatefulWidget>{
   addTask(){
     setState(() {
       if (controller.text.compareTo("") != 0){
-        strings.add({"text": controller.text, "done": false}); controller.clear();
+        strings.add({"text": controller.text, "done": false, "edit": false}); controller.clear();
       }});
   }
 
@@ -83,18 +85,25 @@ class _TodoApp extends State<StatefulWidget>{
             ListView.builder(
                 itemCount: strings.length,
                 itemBuilder:  (BuildContext context, int index){
-                    return ListTile(
+                   return ListTile(
                       onTap: ()=> setState(() {
                         strings[index]["done"] = !strings[index]["done"];
                       }) ,
-                      leading: Checkbox(onChanged: (bool? value) { setState(() {
-                        strings[index]["done"] = ! strings[index]["done"];
-                      }); }, value: strings[index]["done"], checkColor: Colors.green, activeColor: Colors.white,),
-                      trailing: IconButton(onPressed: () => setState(() {
+                      leading:  IconButton(onPressed: () => setState(() {
                           strings.remove(strings[index]);
                         })
-                        , icon: const Icon(Icons.cancel), color: Colors.red[500],),
-                      title: Text( strings[index]["text"], style:  TextStyle(decoration: strings[index]["done"]?TextDecoration.lineThrough: null),),
+                        , icon: const Icon(Icons.cancel), color: Colors.red[800]),
+                      trailing:
+                    IconButton(onPressed: ()=> setState(() {
+                          strings[index]["edit"] = ! strings[index]["edit"];
+                        }), icon: const Icon(Icons.edit, color: Colors.lightGreen,)),
+                      title: strings[index]["edit"]? TextField(autofocus: strings[index]["edit"],controller: TextEditingController(text: strings[index]["text"]), onSubmitted:  (txt){
+                        setState(() {
+                          strings[index]["text"] =txt;
+                          strings[index]["edit"] = false;
+                        });
+
+                      } ,onChanged: (txt)=>strings[index]["text"] = txt): Text( strings[index]["text"], style:  TextStyle(decoration: strings[index]["done"]?TextDecoration.lineThrough: null))
                     );
                   }),
           )
@@ -102,6 +111,15 @@ class _TodoApp extends State<StatefulWidget>{
       );
   }
 
+}
 
+class SimpleFlowDelegate extends FlowDelegate {
+  @override
+  void paintChildren(FlowPaintingContext context) {
+  }
 
+  @override
+  bool shouldRepaint(covariant FlowDelegate oldDelegate) {
+    return false;
+  }
 }
